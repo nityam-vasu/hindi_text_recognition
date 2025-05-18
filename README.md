@@ -27,43 +27,58 @@ pip install -r requirements.txt
 ```
 
 ## Project Structure
+```
+project_root/
+├── data/
+│   └── Datasets for training and testing
+├── test/
+│   └── Test images for evaluation
+├── handwritten_words/
+│   └── Sample handwritten Hindi word images
+├── rendered_words/
+│   └── Sample rendered Hindi text images
+├── thankyou/
+│   └── Additional test images
+├── images/
+│   ├── CtcLossFormula.png        # Diagram of the CTC loss formula
+│   ├── HindiTextRecognition.png  # Detailed view of the CRNN model
+│   ├── flow.png		          # Flow of Model
+│   ├── dhanyawaad.png            # ThankYou Prediction
+│   └── webapp.gif                # Demonstration of the web app
+├── train/
+│   ├── HWT_V2_modified.py        # Training script for handwritten Hindi word recognition
+│   └── Text_V2_modified.py       # Training script for rendered Hindi text recognition
+├── webapp/
+|   ├── app.py                    # Main Flask application for the web interface
+│   ├── essential/
+│   │   └── charlist.txt          # Character list for mapping Hindi characters to indices
+│   ├── models/
+│   │   └── Trained models stored here
+│   ├── recognition_hwt.py        # Inference script for HWT recognition
+│   ├── recognition_text.py       # Inference script for rendered text recognition
+│   ├── recognition_hcr.py        # Inference script for HCR recognition (placeholder)
+│   ├── static/
+│   │   ├── logs/
+│   │   │   └── predictions.json  # Prediction logs
+│   │   └── uploads/
+│   │       └── Uploaded images
+│   └── templates/
+│       ├── index.html            # Main page
+│       ├── about.html            # About page
+│       └── version.html          # Version page
+```
 
-- `data/`: Contains datasets for training and testing.
-  - `test/`: Test images for evaluation.
-    - `handwritten words/`: Sample handwritten Hindi word images.
-    - `rendered words/`: Sample rendered Hindi text images.
-    - `thankyou/`: Additional test images.
-- `images/`: Contains project images and demo files.
-  - `CtcLossFormula.png`: Diagram of the CTC loss formula.
-  - `detail_architecture_flow.png`: Flow of the model architecture.
-  - `model_detail.png`: Detailed view of the CRNN model.
-  - `webapp.gif`: Demonstration of the web app in action.
-- `train/`: Contains training scripts.
-  - `HWT_V2_modified.py`: Training script for handwritten Hindi word recognition (HWT).
-  - `Text_V2_modified.py`: Training script for rendered Hindi text recognition.
-- `webapp/`: Main application directory.
-  - `app.py`: Main Flask application for the web interface.
-  - `essential/`: Essential files for recognition.
-    - `charlist.txt`: Character list for mapping Hindi characters to indices.
-    - `models/`: Directory where trained models are stored.
-  - `recognition_hwt.py`: Inference script for HWT recognition.
-  - `recognition_text.py`: Inference script for rendered text recognition.
-  - `recognition_hcr.py`: Inference script for HCR recognition (placeholder).
-  - `static/`: Static files for the web app.
-    - `logs/`: Directory for prediction logs (`predictions.json`).
-    - `uploads/`: Directory for uploaded images.
-  - `templates/`: HTML templates for the web interface.
-    - `index.html`: Main page.
-    - `about.html`: About page.
-    - `version.html`: Version page.
 
 ## How It Works
 
 This project enables Hindi text recognition through a combination of a web interface and deep learning models. Here's a step-by-step overview of its working:
 
 1. **Dataset Preparation**: The project uses two datasets: `HindiSeg` for handwritten Hindi words (HWT) and `SplitDataset` for rendered Hindi text. Each dataset contains images of Hindi words along with corresponding labels in `train.txt` and `val.txt` files.
+
 2. **Model Training**: The CRNN model is trained using `train/HWT_V2_modified.py` for HWT and `train/Text_V2_modified.py` for rendered text. The model is trained with CTC (Connectionist Temporal Classification) loss, which allows it to handle variable-length sequences without explicit character segmentation.
+
 3. **Model Saving**: Trained models are saved with a date suffix (e.g., `HWT_recognition_model_20250518.pth`) in the `webapp/essential/models/` directory.
+
 4. **Web Application**:
    - The Flask app (`webapp/app.py`) provides a web interface for users to upload images.
    - The app dynamically selects the most recent model for the chosen recognition type (HWT or rendered text).
@@ -74,7 +89,7 @@ This project enables Hindi text recognition through a combination of a web inter
 
 The overall flow of the architecture is illustrated below:
 
-![Architecture Flow](images/detail_architecture_flow.png)
+![Architecture Flow](images/HindiTextRecognition.png)
 
 ## Model Information
 
@@ -104,13 +119,16 @@ The project uses a **CRNN (Convolutional Recurrent Neural Network)** model, whic
 
 The detailed architecture is visualized below:
 
-![Model Architecture](images/model_detail.png)
+![Model Architecture](images/flow.png)
 
 ### Method
 
 - **Preprocessing**: Images are resized to a fixed height (36 pixels) while preserving the aspect ratio, then padded to a fixed width (128 pixels) with white padding. Data augmentation (random rotation, affine translation, color jitter) is applied during training to improve robustness.
+  
 - **Training**: The model is trained using the Adam optimizer with a learning rate of 0.0001. CTC loss is used to align the predicted sequence with the ground truth without requiring character-level segmentation. Early stopping is implemented based on validation loss, with a patience parameter to halt training if no improvement is observed.
+  
 - **Inference**: During inference, the model outputs a sequence of logits, which are decoded using a greedy CTC decoder to produce the final text prediction. The decoder removes blank labels and repeated characters to generate the predicted Hindi text.
+  
 - **Evaluation**: The model is evaluated on a validation set during training, and accuracy is computed by comparing the predicted text with the ground truth. Random samples are printed after each epoch to monitor performance.
 
 ## CRNN and CTC Loss
@@ -204,6 +222,7 @@ data/SplitDataset/
 - `test/`, `train/`, `val/`: Directories containing the test, training, and validation images, respectively.
 - `test.txt`, `train.txt`, `val.txt`: Text files listing the image paths and their corresponding labels for each split.
 
+
 ### Handwritten Hindi Words Dataset (HWT)
 
 This dataset is the IIT Devanagari Word Dataset (Version 1), containing handwritten Hindi words from various writers.
@@ -211,4 +230,102 @@ This dataset is the IIT Devanagari Word Dataset (Version 1), containing handwrit
 ```
 data/HindiSeg/
 ├── charlist.txt         (Unique Devanagari characters for mapping)
-├── hindi_vocab.txt     (List of unique Hindi
+├── hindi_vocab.txt     (List of unique Hindi words in the dataset)
+├── lexicon.txt         (Curated list of common Hindi words for decoding)
+├── test/
+│   ├── 11/             (Test images from writer 11)
+│   ├── 6/              (Test images from writer 6)
+│   └── 9/              (Test images from writer 9)
+├── test.txt            (Test image paths and labels)
+├── train/
+│   ├── 1/              (Training images from writer 1)
+│   ├── 10/             (Training images from writer 10)
+│   ├── 2/              (Training images from writer 2)
+│   ├── 4/              (Training images from writer 4)
+│   ├── 5/              (Training images from writer 5)
+│   ├── 7/              (Training images from writer 7)
+│   └── 8/              (Training images from writer 8)
+├── train.txt           (Training image paths and labels)
+├── val/
+│   ├── 12/             (Validation images from writer 12)
+│   └── 3/              (Validation images from writer 3)
+└── val.txt             (Validation image paths and labels)
+```
+
+- `charlist.txt`: Contains the unique Devanagari characters used in the dataset, for mapping characters to indices.
+- `hindi_vocab.txt`: Contains a list of unique Hindi words present in the dataset, useful for vocabulary analysis.
+- `lexicon.txt`: A curated list of common Hindi words, which can be used for lexicon-based decoding to improve prediction accuracy.
+- `test/`, `train/`, `val/`: Directories containing the test, training, and validation images, respectively. Images are organized by writer ID (e.g., `1/`, `11/`) to separate contributions from different writers.
+- `test.txt`, `train.txt`, `val.txt`: Text files listing the image paths and their corresponding labels for each split.
+
+## Dataset Preparation
+
+### Handwritten Hindi Words (HWT)
+
+- Place your dataset in the `data/HindiSeg/` directory with the structure described above.
+- Ensure `train.txt` and `val.txt` contain lines in the format: `image_path label` (e.g., `train/1/0001.jpg नमस्ते`).
+- Ensure `webapp/essential/charlist.txt` contains all possible characters in the dataset. If using the provided dataset, the `charlist.txt` in `data/HindiSeg/` can be copied to `webapp/essential/`.
+- Optionally, use `hindi_vocab.txt` and `lexicon.txt` for vocabulary analysis or lexicon-based decoding to improve prediction accuracy.
+
+### Rendered Hindi Text
+
+- Place your dataset in the `data/SplitDataset/` directory with the structure described above.
+- Ensure `train.txt` and `val.txt` contain lines in the format: `image_path label` (e.g., `train/0001.png नमस्ते`).
+- Ensure `webapp/essential/charlist.txt` contains all possible characters in the dataset. If using the provided dataset, the `charlist.txt` in `data/SplitDataset/` can be copied to `webapp/essential/`.
+- Optionally, use `hindi_vocab.txt` and `lexicon.txt` for vocabulary analysis or lexicon-based decoding to improve prediction accuracy.
+
+## Usage
+
+### Running the Web Application
+
+1. Ensure the trained models are in the `webapp/essential/models/` directory.
+2. Navigate to the `webapp/` directory and run the Flask app:
+   ```bash
+   cd webapp
+   python app.py
+   ```
+3. Open your browser and navigate to `http://localhost:5000`.
+
+### Web Interface
+
+- **Select Recognition Type**: Choose between `hwt` (handwritten) or `text` (rendered text) from the dropdown.
+- **Upload Images**: Upload one or more images (PNG, JPG, JPEG) to get predictions.
+- **View Predictions**: Predictions are displayed alongside the uploaded images.
+- **Provide Feedback**: Mark predictions as correct or incorrect, which updates the log.
+- **View Logs**: Prediction history is displayed at the bottom of the page.
+- **Clear Logs**: Use the "Clear Logs" button to reset the prediction history.
+
+The app automatically selects the most recent model file for the chosen recognition type (e.g., `HWT_recognition_model_20250518.pth` if it exists and is the most recent). If no dated model is found, it falls back to the default model (e.g., `HWT_recognition_model.pth`).
+
+## Demo
+
+Below is a demonstration of the web app in action, showcasing the process of uploading images, selecting the recognition type, and viewing predictions:
+
+![Web App Demo](images/webapp.gif)
+
+## Notes
+
+- Models are saved with a date suffix (e.g., `HWT_recognition_model_20250518.pth`) to indicate the training date. The Flask app automatically selects the most recent model based on this date.
+- The web app stores uploaded images in `webapp/static/uploads/` and clears them on shutdown.
+- Prediction logs are stored in `webapp/static/logs/predictions.json` and can be cleared via the web interface.
+- Test images are provided in `data/test/` for evaluating the models on handwritten words, rendered words, and additional samples (`thankyou`).
+
+## References
+
+The following resources were instrumental in shaping our approach to Hindi Text Recognition:
+
+- **Devnagari Handwritten Word Recognition**: A GitHub repository implementing CRNN with CTC loss for Devanagari text, providing practical code for Hindi HTR. [Link](https://github.com/sushant097/Devnagari-Handwritten-Word-Recongition-with-Deep-Learning)
+- **SimpleHTR**: A TensorFlow-based HTR system for English, offering insights into CTC implementation and decoding techniques. [Link](https://github.com/githubharald/SimpleHTR)
+- **Handwritten Text Recognition in Historical Documents**: A thesis exploring HTR with CTC, relevant for understanding complex script recognition. [Link](https://repositum.tuwien.ac.at/obvutwhs/download/pdf/2874742)
+- **Word Beam Search**: A paper proposing an advanced CTC decoding algorithm, useful for improving prediction accuracy. [Link](https://repositum.tuwien.ac.at/obvutwoa/download/pdf/2774578)
+
+## Contributing
+
+Feel free to fork this repository, make improvements, and submit pull requests. For major changes, please open an issue first to discuss your ideas.
+
+## License
+
+This project is licensed under the MIT License.
+
+
+![Thankyou](images/dhanyawaad.png)
