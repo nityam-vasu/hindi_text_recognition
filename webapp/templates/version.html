@@ -1,0 +1,112 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Version Info - Hindi Text Recognition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header with About and Current Version Links -->
+    <header class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Hindi Text Recognition</h1>
+        <div class="flex space-x-4">
+            <a href="{{ url_for('about') }}" class="relative group text-white hover:text-indigo-200">
+                About
+                <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2">
+                    Hindi OCR app
+                </span>
+            </a>
+            <a href="{{ url_for('version') }}" class="relative group text-white hover:text-indigo-200">
+                Current Version
+                <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2">
+                    Version 3.0
+                </span>
+            </a>
+            <a href="{{ url_for('index') }}" class="text-white hover:text-indigo-200">Home</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-col items-center justify-center p-4 flex-grow">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Version Info</h2>
+            <p class="text-gray-600"><strong>Version:</strong> 1.0</p>
+            <p class="text-gray-600 mt-2"><strong>New Features:</strong></p>
+            <ul class="list-disc list-inside text-gray-600 mt-2">
+                <li>( 1 ). Added Image Uploading</li>
+                <li>( 2 ). Added Hindi_Text_Recognition Model. </li>
+                <li>( 2 ). Added Rendered Text Image Recognition Feature.</li>
+                <li>( 3 ). Increased Hindi_Text_Recognition Model Accuracy.</li>
+                <li>( 4 ). Added Logging Feature. (Logs are stored at static/logs/predictions.json)</li><br><br>
+            <p class="text-gray-600"><strong>Version:</strong> 2.0</p>
+            <p class="text-gray-600 mt-2"><strong>New Features:</strong></p>
+            <ul class="list-disc list-inside text-gray-600 mt-2">
+                <li>( 1 ). Added Multiple Images Uploading.</li>
+                <li>( 2 ). Added Multiple Image Prediction.</li>
+                <li>( 3 ). Added Hindi_Hand_Written_Text_Recognition Model. </li>
+                <li>( 4 ). Added Hand Written Text Image Recognition Feature.</li>
+                <li>( 5 ). Increased Hindi_Hand_Written_Text_Recognition Model Accuracy.</li>
+                <li>( 6 ). Added Model Selection. Radio Button for selecting.</li>
+                <li>( 7 ). Added Clear Log Button.</li>
+                <li>( 8 ). Tweaked Site to increase overall responsiveness.</li>
+                <li>( 9 ). Fixed Several Bugs.</li><br><br>
+            <p class="text-gray-600"><strong>Version:</strong> 3.0</p>
+            <p class="text-gray-600 mt-2"><strong>New Features:</strong></p>
+            <ul class="list-disc list-inside text-gray-600 mt-2">
+                <li>( 1 ). Improved Batch Predictions.</li>
+                <li>( 2 ). Persistent Model Loading to improve Performance (model persists until page refresh or model change).</li>
+                <li>( 3 ). Now Clear log will remove saved Prediction Logs.</li>
+                <li>( 4 ). Added Feedback Option.</li>
+                <li>( 5 ). Added Checkbox for Correct Prediction.</li><br><br>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Upcoming</h2>
+            <p class="text-gray-600"><strong>Version:</strong> 4.0 (WIP)</p>
+            <p class="text-gray-600 mt-2"><strong>Proposed Features:</strong></p>
+            <ul class="list-disc list-inside text-gray-600 mt-2">
+                <li>( 1 ). Exporting Log as CSV.</li>
+                <li>( 2 ). Separate Model for Predicting Hindi Text in a page .</li>
+                <li>( 3 ). Text Segmentation for Extracting multiple text from page (uploaded as image).</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

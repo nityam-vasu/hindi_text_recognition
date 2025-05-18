@@ -1,0 +1,163 @@
+[
+    {
+        "model": "HWT_recognition_model.pth",
+        "image_path": "static/uploads/2.jpg",
+        "prediction": "\u0909\u0938\u0915\u0940",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:16"
+    },
+    {
+        "model": "HWT_recognition_model.pth",
+        "image_path": "static/uploads/11.jpg",
+        "prediction": "\u091f\u093e\u0907\u091f",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:16"
+    },
+    {
+        "model": "HWT_recognition_model.pth",
+        "image_path": "static/uploads/16.jpg",
+        "prediction": "\u092c\u0949\u0921\u0940",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:16"
+    },
+    {
+        "model": "HWT_recognition_model.pth",
+        "image_path": "static/uploads/20.jpg",
+        "prediction": "\u0926\u093f\u0916\u093e\u0935\u0947",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:16"
+    },
+    {
+        "model": "HWT_recognition_model.pth",
+        "image_path": "static/uploads/28.jpg",
+        "prediction": "\u092e\u0902\u0926\u093e",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:16"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/428.png",
+        "prediction": "\u091c\u093f\u091c\u094d\u091e\u093e\u0938\u093e\u0913\u0902",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:52"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/761.png",
+        "prediction": "\u092a\u093e\u0924\u094d\u0930\u094b\u0902",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:52"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/879.png",
+        "prediction": "\u092d\u0930\u0928\u0947",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:52"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/33042.png",
+        "prediction": "\u0939\u0902\u0938\u0924\u093e",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:52"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/33837.png",
+        "prediction": "\u0925\u0930\u094d\u0930\u093e\u092f\u093e\u0964",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:52"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/33905.png",
+        "prediction": "\u0934\u093f\u0937\u092f",
+        "is_correct": "true",
+        "timestamp": "2025-05-17 16:21:52"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679.png",
+        "prediction": "\u092c\u0939\u0927\u0941\u0927\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:40"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679_2.png",
+        "prediction": "\u092c\u0939\u0941\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:40"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679_3.png",
+        "prediction": "\u092c\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:41"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679_4.png",
+        "prediction": "\u092c\u0939\u0943\u0927\u0943\u0927\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:41"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679_5.png",
+        "prediction": "\u092c\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:41"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679_6.png",
+        "prediction": "\u092c\u0939\u0941\u0939\u0927\u0941\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:41"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679_7.png",
+        "prediction": "\u092c\u0939\u0943\u0927\u0943\u0927\u0943\u0927\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:41"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679_8.png",
+        "prediction": "\u092c\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:41"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679_9.png",
+        "prediction": "\u092c\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:41"
+    },
+    {
+        "model": "Text_recognition_model.pth",
+        "image_path": "static/uploads/679_10.png",
+        "prediction": "\u092c\u0939\u0941\u0939",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:45:41"
+    },
+    {
+        "model": "HWT_recognition_model.pth",
+        "image_path": "static/uploads/16.jpg",
+        "prediction": "\u0927\u0928\u094d\u092f\u0935\u093e\u0926\u0964",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:46:14"
+    },
+    {
+        "model": "HWT_recognition_model.pth",
+        "image_path": "static/uploads/17.jpg",
+        "prediction": "\u0927\u0928\u094d\u092f\u0935\u093e\u0926\u0964",
+        "is_correct": "Not Set",
+        "timestamp": "2025-05-18 11:46:14"
+    }
+]
