@@ -27,35 +27,45 @@ pip install -r requirements.txt
 ```
 
 ## Project Structure
+```
+project_root/
+├── data/
+│   └── Datasets for training and testing
+├── test/
+│   └── Test images for evaluation
+├── handwritten_words/
+│   └── Sample handwritten Hindi word images
+├── rendered_words/
+│   └── Sample rendered Hindi text images
+├── thankyou/
+│   └── Additional test images
+├── images/
+│   ├── CtcLossFormula.png        # Diagram of the CTC loss formula
+│   ├── HindiTextRecognition.svg         # Detailed view of the CRNN model
+│   └── webapp.gif                # Demonstration of the web app
+├── train/
+│   ├── HWT_V2_modified.py        # Training script for handwritten Hindi word recognition
+│   └── Text_V2_modified.py       # Training script for rendered Hindi text recognition
+├── webapp/
+|   ├── app.py                    # Main Flask application for the web interface
+│   ├── essential/
+│   │   └── charlist.txt          # Character list for mapping Hindi characters to indices
+│   ├── models/
+│   │   └── Trained models stored here
+│   ├── recognition_hwt.py        # Inference script for HWT recognition
+│   ├── recognition_text.py       # Inference script for rendered text recognition
+│   ├── recognition_hcr.py        # Inference script for HCR recognition (placeholder)
+│   ├── static/
+│   │   ├── logs/
+│   │   │   └── predictions.json  # Prediction logs
+│   │   └── uploads/
+│   │       └── Uploaded images
+│   └── templates/
+│       ├── index.html            # Main page
+│       ├── about.html            # About page
+│       └── version.html          # Version page
+```
 
-- `data/`: Contains datasets for training and testing.
-  - `test/`: Test images for evaluation.
-    - `handwritten words/`: Sample handwritten Hindi word images.
-    - `rendered words/`: Sample rendered Hindi text images.
-    - `thankyou/`: Additional test images.
-- `images/`: Contains project images and demo files.
-  - `CtcLossFormula.png`: Diagram of the CTC loss formula.
-  - `detail_architecture_flow.png`: Flow of the model architecture.
-  - `model_detail.png`: Detailed view of the CRNN model.
-  - `webapp.gif`: Demonstration of the web app in action.
-- `train/`: Contains training scripts.
-  - `HWT_V2_modified.py`: Training script for handwritten Hindi word recognition (HWT).
-  - `Text_V2_modified.py`: Training script for rendered Hindi text recognition.
-- `webapp/`: Main application directory.
-  - `app.py`: Main Flask application for the web interface.
-  - `essential/`: Essential files for recognition.
-    - `charlist.txt`: Character list for mapping Hindi characters to indices.
-    - `models/`: Directory where trained models are stored.
-  - `recognition_hwt.py`: Inference script for HWT recognition.
-  - `recognition_text.py`: Inference script for rendered text recognition.
-  - `recognition_hcr.py`: Inference script for HCR recognition (placeholder).
-  - `static/`: Static files for the web app.
-    - `logs/`: Directory for prediction logs (`predictions.json`).
-    - `uploads/`: Directory for uploaded images.
-  - `templates/`: HTML templates for the web interface.
-    - `index.html`: Main page.
-    - `about.html`: About page.
-    - `version.html`: Version page.
 
 ## How It Works
 
@@ -109,8 +119,11 @@ The detailed architecture is visualized below:
 ### Method
 
 - **Preprocessing**: Images are resized to a fixed height (36 pixels) while preserving the aspect ratio, then padded to a fixed width (128 pixels) with white padding. Data augmentation (random rotation, affine translation, color jitter) is applied during training to improve robustness.
+  
 - **Training**: The model is trained using the Adam optimizer with a learning rate of 0.0001. CTC loss is used to align the predicted sequence with the ground truth without requiring character-level segmentation. Early stopping is implemented based on validation loss, with a patience parameter to halt training if no improvement is observed.
+  
 - **Inference**: During inference, the model outputs a sequence of logits, which are decoded using a greedy CTC decoder to produce the final text prediction. The decoder removes blank labels and repeated characters to generate the predicted Hindi text.
+  
 - **Evaluation**: The model is evaluated on a validation set during training, and accuracy is computed by comparing the predicted text with the ground truth. Random samples are printed after each epoch to monitor performance.
 
 ## CRNN and CTC Loss
