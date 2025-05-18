@@ -1,0 +1,209 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Hindi Text Recognition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Hindi Text Recognition</h1>
+        <div class="flex space-x-4">
+            <a href="{{ url_for('about') }}" class="relative group text-white hover:text-indigo-200">
+                About
+                <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2">
+                    Hindi OCR App
+                </span>
+            </a>
+            <a href="{{ url_for('version') }}" class="relative group text-white hover:text-indigo-200">
+                Current Version
+                <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2">
+                    Version 3.0
+                </span>
+            </a>
+            <a href="{{ url_for('index') }}" class="relative group text-white hover:text-indigo-200">
+                Home
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-col items-center justify-center p-4 flex-grow w-full">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">About</h2>
+
+            <!-- Short Description -->
+            <p class="text-gray-600 mb-6">
+                The Hindi Text Recognition app is a tool designed to recognize handwritten and rendered Hindi text from images using deep learning models. It allows users to upload images, select a pre-trained model, and get predictions for the text in the images. Features include multiple image uploads, prediction feedback, and a log to track results.
+            </p>
+            <!-- Team Members -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Our Team</h3>
+            <p class="text-gray-600 mb-4">
+                This project was brought to life by a dedicated team of three individuals:
+            </p>
+            <ul class="list-disc list-inside text-gray-600 mb-4">
+                <li><strong>Ankita Sahu</strong></li>
+                <li><strong>Harsh Kumar Sinha</strong></li>
+                <li><strong>Poonam Kalihari</strong></li>
+            </ul>
+
+            <!-- Long Description -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Detailed Overview</h3>
+            <p class="text-gray-600 mb-4">
+                <strong>Working:</strong><br><br>The Hindi Text Recognition app leverages Convolutional Recurrent Neural Network (CRNN) models to process Hindi text from images, supporting both Handwritten Word Recognition (HWT) and Text Recognition (Text). Users upload images via a web interface built with Flask, and the app processes these images through the selected model. The image is preprocessed (resized, normalized, and converted to grayscale), passed through the CRNN model, and the output is decoded into Hindi text using Connectionist Temporal Classification (CTC) decoding. The predictions are displayed with an option to provide feedback, which is logged for future improvements.<br>
+            </p>
+            <p class="text-gray-600 mb-4">
+                <strong>Why This Method:</strong><br><br> We chose CRNN for HWT and Text recognition because it combines the strengths of Convolutional Neural Networks (CNNs) for feature extraction and Recurrent Neural Networks (RNNs) for sequence modeling, making it ideal for reading variable-length text sequences like words or sentences in Hindi. 
+                <br>The CNN extracts spatial features from the image, while the RNN (specifically LSTM) captures the sequential dependencies between characters. The CTC loss function enables the model to learn alignments between the input image and output text without requiring pre-segmented data, which is particularly useful for the complex Devanagari script with its conjunct characters and diverse handwriting styles.<br>
+            </p>
+            <p class="text-gray-600 mb-4">
+                <strong>Training Method and Implementation:</strong><br><br> The CRNN models for HWT and Text were trained using a combination of synthetic and real-world datasets. We used Connectionist Temporal Classification (CTC) loss, which is well-suited for sequence prediction tasks without requiring pre-segmented data.<br> The training process involved data augmentation (rotation, scaling, noise addition) to make the models robust to variations in handwriting and text rendering. 
+                <br>We used PyTorch for model implementation, with the Adam optimizer and a learning rate scheduler to ensure convergence. The training was performed on a GPU for 50 epochs, with early stopping to prevent overfitting. The models are saved in the<code> essential/models </code> directory and loaded dynamically based on the recognition type selected by the user.<br>
+            </p>
+            <p class="text-gray-600 mb-4">
+                <strong>Connectionist Temporal Classification (CTC):</strong><br> <br>CTC is a loss function used in sequence-to-sequence tasks where the alignment between input and output is unknown, such as recognizing Hindi text from images. In our project, CTC enables the CRNN model to predict a sequence of characters without needing to know the exact position of each character in the image. The model outputs a sequence of probability distributions over characters (plus a blank label) for each time step.<br> CTC computes the total probability of the target sequence by summing the probabilities of all possible alignments (paths) that collapse to the target sequence after removing blanks and repeated labels. The loss is the negative log of this probability, which the model minimizes during training. During inference, a greedy decoder converts the output probabilities into readable text by selecting the most likely character at each time step and collapsing the sequence. <br> This approach is robust for variable-length text and complex scripts like Devanagari.<br>
+            </p>
+
+            
+
+            <!-- Model Flowcharts -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Model Flowcharts</h3>
+            <h4 class="text-lg font-medium text-gray-700 mb-2">CRNN Model (HWT and Text Recognition)</h4>
+            <pre class="bg-gray-100 p-4 rounded-md text-gray-600 mb-4">
+Input Image
+    ↓
+[Preprocess: Resize, Normalize, Grayscale]
+    ↓
+[CNN Layers: Feature Extraction]
+    ↓
+[Feature Maps]
+    ↓
+[Reshape for Sequence]
+    ↓
+[LSTM Layers: Sequence Modeling]
+    ↓
+[CTC Decoder]
+    ↓
+Output: Hindi Text Sequence
+            </pre>
+
+            <!-- Datasets -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Datasets</h3>
+            <p class="text-gray-600 mb-2">
+                <strong>CRNN Models (HWT and Text):</strong> The CRNN models were trained on the following datasets:
+            </p>
+            <ul class="list-disc list-inside text-gray-600 mb-4">
+                <li><strong>Handwritten Rendered Text Recognition Dataset (Text):</strong> A synthetic dataset created from scratch by rendering Hindi words in multiple Devanagari fonts using the Pillow library. It contains 100,000 images split into training, validation, and test sets.</li>
+                <li><strong>Handwritten Hindi Words Dataset (HWT):</strong> The IIT Devanagari Word Dataset (Version 1), sourced from <a href="https://cvit.iiit.ac.in/research/projects/cvit-projects/indic-hw-data" class="text-indigo-600 hover:underline">CVIT IIIT Hyderabad</a>. It includes 50,000 handwritten Hindi word images collected from various writers, split into training, validation, and test sets.</li>
+            </ul>
+
+            <!-- Directory Structure of Datasets -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Dataset Directory Structure</h3>
+            <h4 class="text-lg font-medium text-gray-700 mb-2">Handwritten Rendered Text Recognition Dataset (Text)</h4>
+            <p class="text-gray-600 mb-2">
+                This dataset was created synthetically using Pillow to render Hindi words in various Devanagari fonts.
+            </p>
+            <pre class="bg-gray-100 p-4 rounded-md text-gray-600 mb-4">
+data/SplitDataset/
+├── charlist.txt         (Unique Devanagari characters for mapping)
+├── full.txt            (All image paths and labels across splits)
+├── hindi_vocab.txt     (List of unique Hindi words in the dataset)
+├── lexicon.txt         (Curated list of common Hindi words for decoding)
+├── test/               (Test images)
+├── test.txt            (Test image paths and labels)
+├── train/              (Training images)
+├── train.txt           (Training image paths and labels)
+├── val/                (Validation images)
+└── val.txt             (Validation image paths and labels)
+            </pre>
+
+            <h4 class="text-lg font-medium text-gray-700 mb-2">Handwritten Hindi Words Dataset (HWT)</h4>
+            <p class="text-gray-600 mb-2">
+                This dataset is the IIT Devanagari Word Dataset (Version 1), containing handwritten Hindi words from various writers.
+            </p>
+            <pre class="bg-gray-100 p-4 rounded-md text-gray-600 mb-4">
+data/HindiSeg/
+├── charlist.txt         (Unique Devanagari characters for mapping)
+├── hindi_vocab.txt     (List of unique Hindi words in the dataset)
+├── lexicon.txt         (Curated list of common Hindi words for decoding)
+├── test/
+│   ├── 11/             (Test images from writer 11)
+│   ├── 6/              (Test images from writer 6)
+│   └── 9/              (Test images from writer 9)
+├── test.txt            (Test image paths and labels)
+├── train/
+│   ├── 1/              (Training images from writer 1)
+│   ├── 10/             (Training images from writer 10)
+│   ├── 2/              (Training images from writer 2)
+│   ├── 4/              (Training images from writer 4)
+│   ├── 5/              (Training images from writer 5)
+│   ├── 7/              (Training images from writer 7)
+│   └── 8/              (Training images from writer 8)
+├── train.txt           (Training image paths and labels)
+├── val/
+│   ├── 12/             (Validation images from writer 12)
+│   └── 3/              (Validation images from writer 3)
+└── val.txt             (Validation image paths and labels)
+            </pre>
+
+            <!-- References -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">References</h3>
+            <p class="text-gray-600 mb-4">
+                The following resources were instrumental in shaping our approach to Hindi Text Recognition:
+            </p>
+            <ul class="list-disc list-inside text-gray-600 mb-4">
+                <li><a href="https://github.com/sushant097/Devnagari-Handwritten-Word-Recongition-with-Deep-Learning" class="text-indigo-600 hover:underline">Devnagari Handwritten Word Recognition</a>: A GitHub repository implementing CRNN with CTC loss for Devanagari text, providing practical code for Hindi HTR.</li>
+                <li><a href="https://github.com/githubharald/SimpleHTR" class="text-indigo-600 hover:underline">SimpleHTR</a>: A TensorFlow-based HTR system for English, offering insights into CTC implementation and decoding techniques.</li>
+                <li><a href="https://repositum.tuwien.ac.at/obvutwhs/download/pdf/2874742" class="text-indigo-600 hover:underline">Handwritten Text Recognition in Historical Documents</a>: A thesis exploring HTR with CTC, relevant for understanding complex script recognition.</li>
+                <li><a href="https://repositum.tuwien.ac.at/obvutwoa/download/pdf/2774578" class="text-indigo-600 hover:underline">Word Beam Search</a>: A paper proposing an advanced CTC decoding algorithm, useful for improving prediction accuracy.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Debug Script -->
+    <script>
+        console.log("About page loaded successfully!");
+    </script>
+</body>
+</html>

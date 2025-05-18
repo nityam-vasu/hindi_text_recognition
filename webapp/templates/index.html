@@ -1,0 +1,261 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Text Recognition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header with About and Current Version Links -->
+    <header class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Hindi Text Recognition</h1>
+        <div class="flex space-x-4">
+            <a href="{{ url_for('about') }}" class="relative group text-white hover:text-indigo-200">
+                About
+                <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2">
+                    Hindi OCR
+                </span>
+            </a>
+            <a href="{{ url_for('version') }}" class="relative group text-white hover:text-indigo-200">
+                Current Version
+                <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2">
+                    Version 3.0
+                </span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-col items-center justify-center p-4 flex-grow w-full">
+        <!-- Form and Prediction Viewer Side by Side -->
+        <div class="flex flex-col md:flex-row justify-center items-start space-y-4 md:space-y-0 md:space-x-4 w-full max-w-6xl">
+            <!-- Form Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full md:w-1/2 max-w-md">
+                <p class="text-center text-gray-600 mb-4"> ... </p>
+
+                <!-- Form for Recognition Type and Multiple Image Upload -->
+                <form method="post" action="{{ url_for('predict_route') }}" enctype="multipart/form-data" class="space-y-4">
+                    <!-- Recognition Type Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Recognition Type</label>
+                        <div class="mt-1 space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="recognition_type" value="hwt" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" {% if recognition_type == 'hwt' %}checked{% endif %}>
+                                <span class="ml-2 text-sm text-gray-600">   HandWritten Text Recognition</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="recognition_type" value="text" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" {% if recognition_type == 'text' %}checked{% endif %}>
+                                <span class="ml-2 text-sm text-gray-600">   Rendered Text Recognition</span>
+                            </label>
+                            <!--
+                            <label class="flex items-center">
+                                <input type="radio" name="recognition_type" value="hcr" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" {% if recognition_type == 'hcr' %}checked{% endif %}>
+                                <span class="ml-2 text-sm text-gray-600">Handwritten Character Recognition</span>
+                            </label>
+                            <-->
+                        </div>
+                    </div>
+
+                    <!-- Multiple Image Upload -->
+                    <div>
+                        <label for="image" class="block text-sm font-medium text-gray-700">Upload Images</label>
+                        <input type="file" name="image" id="image" accept=".png,.jpg,.jpeg" multiple class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Get Predictions</button>
+                </form>
+
+                <!-- Refresh Button -->
+                <a href="{{ url_for('index') }}" class="mt-4 block w-full bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 text-center">Start Again</a>
+
+                <!-- Clear Log Button -->
+                <form method="post" action="{{ url_for('clear_log_route') }}" class="mt-2">
+                    <button type="submit" class="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">Clear Log</button>
+                </form>
+
+                <!-- Error Message -->
+                {% if error %}
+                    <p class="mt-4 text-red-600 text-center">{{ error }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Prediction Viewer Section -->
+            {% if prediction_pairs %}
+                <div class="bg-white rounded-lg shadow-lg p-6 w-full md:w-1/2 max-w-md">
+                    <div class="p-4 bg-gray-50 rounded-md">
+                        <div class="flex items-center justify-between">
+                            <!-- Left Arrow -->
+                            <button id="prev-btn" class="text-indigo-600 hover:text-indigo-800 focus:outline-none">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                            </button>
+
+                            <!-- Prediction and Image -->
+                            <div class="flex-1 text-center">
+                                <h2 class="text-lg font-semibold text-gray-800 mb-2">Prediction</h2>
+                                <div id="prediction-container">
+                                    {% for prediction, image_path in prediction_pairs %}
+                                        {% set feedback_status = "Not Set" %}
+                                        {% for entry in log if entry['image_path'] == image_path %}
+                                            {% set feedback_status = entry['is_correct'] %}
+                                        {% endfor %}
+                                        <div class="prediction-item hidden" data-prediction="{{ prediction }}" data-image="{{ url_for('static', filename=image_path.split('static/')[1]) }}">
+                                            <p class="text-gray-700 mb-2">{{ prediction }}</p>
+                                            <img src="{{ url_for('static', filename=image_path.split('static/')[1]) }}" alt="Uploaded Image" class="w-full rounded-md">
+                                            <p class="text-sm text-gray-600 mt-2">Feedback: {{ 'Yes' if feedback_status == 'True' else 'No' if feedback_status == 'False' else 'Not Set' }}</p>
+                                            <form method="post" action="{{ url_for('submit_feedback') }}" class="mt-2">
+                                                <input type="hidden" name="image_path" value="{{ image_path }}">
+                                                <input type="hidden" name="prediction_pairs" value="{{ prediction_pairs }}">
+                                                <input type="hidden" name="recognition_type" value="{{ recognition_type }}">
+                                                <div class="flex justify-center space-x-2">
+                                                    <label class="flex items-center space-x-1">
+                                                        <input type="checkbox" name="is_correct" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" {% if feedback_status == 'True' %}checked{% endif %}>
+                                                        <span class="text-sm text-gray-600">Correct?</span>
+                                                    </label>
+                                                    <button type="submit" class="bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Submit Feedback</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <p id="counter" class="text-gray-600 mt-2"></p>
+                            </div>
+
+                            <!-- Right Arrow -->
+                            <button id="next-btn" class="text-indigo-600 hover:text-indigo-800 focus:outline-none">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Debug Log Length -->
+        <!--
+        <p class="text-gray-600 mt-4">Debug: Log length = {{ log | length }}</p>
+		-->
+        <!-- Log Table -->
+        <!--
+        {% if log %}
+            <div class="mt-6 w-full max-w-4xl">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">Prediction Log</h2>
+                <div class="overflow-x-auto max-h-96">
+                    <table class="min-w-full bg-white rounded-lg shadow-lg">
+                        <thead class="bg-gray-200 sticky top-0">
+                            <tr>
+                                <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Model</th>
+                                <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Image</th>
+                                <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Prediction</th>
+                                <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Correct?</th>
+                                <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in log %}
+                                <tr class="border-t">
+                                    <td class="py-2 px-4 text-sm text-gray-600">{{ entry['model'] }}</td>
+                                    <td class="py-2 px-4">
+                                        <img src="{{ url_for('static', filename=entry['image_path'].split('static/')[1]) }}" alt="Log Image" class="w-24 rounded-md">
+                                    </td>
+                                    <td class="py-2 px-4 text-sm text-gray-600">{{ entry['prediction'] }}</td>
+                                    <td class="py-2 px-4 text-sm text-gray-600">{{ 'Yes' if entry['is_correct'] == 'True' else 'No' if entry['is_correct'] == 'False' else 'Not Set' }}</td>
+                                    <td class="py-2 px-4 text-sm text-gray-600">{{ entry['timestamp'] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+        -->
+    </div>
+
+    <!-- JavaScript for Prediction Navigation -->
+    <script>
+        // Prediction Navigation
+        const predictionItems = document.querySelectorAll('.prediction-item');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const counter = document.getElementById('counter');
+        let currentIndex = 0;
+        const totalItems = predictionItems.length;
+
+        function updatePredictionDisplay() {
+            predictionItems.forEach((item, index) => {
+                item.classList.add('hidden');
+                if (index === currentIndex) {
+                    item.classList.remove('hidden');
+                }
+            });
+            counter.textContent = `${currentIndex + 1}/${totalItems}`;
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === totalItems - 1;
+        }
+
+        if (predictionItems.length > 0) {
+            updatePredictionDisplay();
+
+            prevBtn.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updatePredictionDisplay();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex < totalItems - 1) {
+                    currentIndex++;
+                    updatePredictionDisplay();
+                }
+            });
+        } else {
+            console.log("No prediction items found.");
+        }
+    </script>
+</body>
+</html>
